@@ -1,4 +1,4 @@
-package com.example.campominado
+package com.sbaker.campominado
 
 import org.junit.Test
 
