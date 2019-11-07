@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Campo minado</string>
+    <string name="win">You win</string>
+    <string name="lose">You lose</string>
+    <string name="try_again">Try again</string>
+</resources>

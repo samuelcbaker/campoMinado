@@ -13,6 +13,7 @@ import com.sbaker.campominado.utils.Constants
 class Field(context: Context, displayMetrics: DisplayMetrics, columns: Int) {
     var value = 0
     var label = TextView(context)
+    var clicked = false
 
     init {
         /**
@@ -38,10 +39,16 @@ class Field(context: Context, displayMetrics: DisplayMetrics, columns: Int) {
         }
     }
 
-    fun setLabelText(str: String){
+    fun setLabelText(str: String, color: Int){
         label.apply {
-            text = str
-            setBackgroundColor(resources.getColor(R.color.grayLight))
+            text = if (value == Constants.BLANK_VALUE) "" else str
+            setBackgroundColor(resources.getColor(color))
+            when(value){
+                1 -> setTextColor(resources.getColor(R.color.blue))
+                2 -> setTextColor(resources.getColor(R.color.colorPrimaryDark))
+                Constants.BOMB_VALUE -> setTextColor(resources.getColor(R.color.black))
+                else -> setTextColor(resources.getColor(R.color.red))
+            }
         }
     }
 }

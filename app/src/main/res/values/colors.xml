@@ -6,4 +6,7 @@
     <color name="gray">#b2b2b2</color>
     <color name="grayLight">#dfdfdf</color>
     <color name="black">#000</color>
+    <color name="red">#BC1600</color>
+    <color name="redLight">#FA8586</color>
+    <color name="blue">#2400BB</color>
 </resources>

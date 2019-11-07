@@ -2,6 +2,7 @@ package com.sbaker.campominado.view
 
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.sbaker.campominado.R
 import com.sbaker.campominado.model.Field
@@ -14,16 +15,26 @@ class MainActivity : AppCompatActivity() {
     var rows = 13
     var columns = 10
     var qtdBombs = 15
+    var qtdSafeFields = rows * columns - qtdBombs
 
     lateinit var items: Array<Array<Field>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setupUI()
+        initSetup()
+        startGame()
     }
 
-    private fun setupUI() {
+    private fun initSetup(){
+        btnTryAgain.setOnClickListener {
+            restartGame()
+        }
+    }
+
+    private fun startGame() {
+        setVisibilityEndItems(View.GONE)
+
         /**
          * Estrutura de dados que permite definir valores para os atributos do objeto repetir o nome da variável
          */
@@ -52,9 +63,16 @@ class MainActivity : AppCompatActivity() {
                  */
                 items[row][column].label.setOnClickListener {
                     positionBombs(row, column)
+                    showValue(row, column)
                 }
             }
         }
+    }
+
+    private fun restartGame(){
+        qtdSafeFields = rows * columns - qtdBombs
+        board.removeAllViews()
+        startGame()
     }
 
     private fun positionBombs(clickedRow: Int, clickedColumn: Int){
@@ -69,7 +87,7 @@ class MainActivity : AppCompatActivity() {
              */
             if(items[row][column].value == Constants.BLANK_VALUE && (row != clickedRow && column != clickedColumn)){
                 items[row][column].value = Constants.BOMB_VALUE
-                items[row][column].setLabelText("*")
+                items[row][column].setLabelText("*", R.color.gray)
                 bombs--
             }
         }
@@ -90,20 +108,94 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showValue(clickedRow: Int, clickedColumn: Int){
+        val field = items[clickedRow][clickedColumn]
+
+        if(field.value == Constants.BOMB_VALUE){
+            showAllBombs()
+            field.setLabelText("*", R.color.redLight)
+            defeat()
+            return
+        }
 
         var count = 0
+
+        /**
+         * Loop que passa por um quadrado 3x3, com o item clicado no meio
+         */
         for(row in clickedRow - 1 .. clickedRow + 1){
             for (column in clickedColumn - 1 .. clickedColumn + 1){
+                // se a linha e coluna estão dentro do tamanho do tabuleiro inteiro
                 if(row >= 0 && column >= 0 && row < rows && column < columns) {
-                    val field = items[row][column]
-                    if ( (row != clickedRow || column != clickedColumn) && field.value == Constants.BOMB_VALUE) {
+                    // se não for o item clicado e se for uma bomba
+                    if ( (row != clickedRow || column != clickedColumn) && items[row][column].value == Constants.BOMB_VALUE) {
                         count++
                     }
                 }
             }
         }
 
-        items[clickedRow][clickedColumn].value = count
-        items[clickedRow][clickedColumn].setLabelText(count.toString())
+        field.value = count
+        field.setLabelText(count.toString(), R.color.grayLight)
+
+        //Diminuir a quantidade de campos seguros somente quando aquele item não foi clicado
+        if(!field.clicked) {
+            qtdSafeFields--
+            field.clicked = true
+        }
+
+        if(count == 0){
+            for(row in clickedRow - 1 .. clickedRow + 1){
+                for (column in clickedColumn - 1 .. clickedColumn + 1){
+                    // se a linha e coluna estão dentro do tamanho do tabuleiro inteiro
+                    if(row >= 0 && column >= 0 && row < rows && column < columns) {
+                        // se não for o item clicado
+                        if (row != clickedRow || column != clickedColumn) {
+                            if(!items[row][column].clicked) {
+                                showValue(row, column)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if(qtdSafeFields == 0){
+            victory()
+        }
+    }
+
+    private fun showAllBombs() {
+        items.forEach {
+            it.forEach {
+                if(it.value == Constants.BOMB_VALUE){
+                    it.setLabelText("*", R.color.grayLight)
+                }
+            }
+        }
+    }
+
+    private fun victory(){
+        labelResult.text = resources.getString(R.string.win)
+        setVisibilityEndItems(View.VISIBLE)
+        cleanListeners()
+    }
+
+    private fun defeat(){
+        labelResult.text = resources.getString(R.string.lose)
+        setVisibilityEndItems(View.VISIBLE)
+        cleanListeners()
+    }
+
+    private fun cleanListeners(){
+        items.forEach {
+            it.forEach {
+                it.label.setOnClickListener{}
+            }
+        }
+    }
+
+    private fun setVisibilityEndItems(visibility: Int){
+        labelResult.visibility = visibility
+        btnTryAgain.visibility = visibility
     }
 }
