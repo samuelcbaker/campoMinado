@@ -2,14 +2,11 @@ package com.sbaker.campominado.view
 
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.sbaker.campominado.R
 import com.sbaker.campominado.model.Field
 import com.sbaker.campominado.utils.Constants
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,8 +25,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUI() {
         /**
-         * Estrutura de dados que permite setar os atributos do objeto repetir o nome da variável
-         * Parecido com um builder
+         * Estrutura de dados que permite definir valores para os atributos do objeto repetir o nome da variável
          */
         board.apply {
             rowCount = rows
@@ -49,22 +45,19 @@ class MainActivity : AppCompatActivity() {
 
         for(row in 0..rows-1){
             for (column in 0..columns-1){
-                /**
-                 * Adicionando label no GridLayout
-                 */
                 board.addView(items[row][column].label)
 
                 /**
-                 * Adicionando um listener nas labels para sortear as bombas
+                 * Listener nas labels para sortear as bombas
                  */
                 items[row][column].label.setOnClickListener {
-                    posicionateBombs(row, column)
+                    positionBombs(row, column)
                 }
             }
         }
     }
 
-    private fun posicionateBombs(clickedRow: Int, clickedColumn: Int){
+    private fun positionBombs(clickedRow: Int, clickedColumn: Int){
         var bombs = qtdBombs
 
         while (bombs > 0){
@@ -76,16 +69,41 @@ class MainActivity : AppCompatActivity() {
              */
             if(items[row][column].value == Constants.BLANK_VALUE && (row != clickedRow && column != clickedColumn)){
                 items[row][column].value = Constants.BOMB_VALUE
-                items[row][column].label.text = "*"
+                items[row][column].setLabelText("*")
                 bombs--
             }
         }
 
         /**
-         * Para nao posicionar mais bombas
+         * Para nao posicionar mais bombas.
          */
-        items.forEach { it.forEach {
-            it.label.setOnClickListener {}
-        }}
+        for(row in 0..rows-1){
+            for (column in 0..columns-1){
+                /**
+                 * Listener nas labels para sortear as bombas
+                 */
+                items[row][column].label.setOnClickListener {
+                    showValue(row, column)
+                }
+            }
+        }
+    }
+
+    private fun showValue(clickedRow: Int, clickedColumn: Int){
+
+        var count = 0
+        for(row in clickedRow - 1 .. clickedRow + 1){
+            for (column in clickedColumn - 1 .. clickedColumn + 1){
+                if(row >= 0 && column >= 0 && row < rows && column < columns) {
+                    val field = items[row][column]
+                    if ( (row != clickedRow || column != clickedColumn) && field.value == Constants.BOMB_VALUE) {
+                        count++
+                    }
+                }
+            }
+        }
+
+        items[clickedRow][clickedColumn].value = count
+        items[clickedRow][clickedColumn].setLabelText(count.toString())
     }
 }

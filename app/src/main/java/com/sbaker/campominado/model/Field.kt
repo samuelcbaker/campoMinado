@@ -1,6 +1,7 @@
 package com.sbaker.campominado.model
 
 import android.content.Context
+import android.graphics.Typeface
 import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.view.Gravity
@@ -33,6 +34,14 @@ class Field(context: Context, displayMetrics: DisplayMetrics, columns: Int) {
             layoutParams = lytParams
             isClickable = true
             gravity = Gravity.CENTER
+            typeface = Typeface.DEFAULT_BOLD
+        }
+    }
+
+    fun setLabelText(str: String){
+        label.apply {
+            text = str
+            setBackgroundColor(resources.getColor(R.color.grayLight))
         }
     }
 }
