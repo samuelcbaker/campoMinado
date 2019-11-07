@@ -2,6 +2,8 @@ package com.sbaker.campominado.view
 
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.sbaker.campominado.R
@@ -16,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     var columns = 10
     var qtdBombs = 15
     var qtdSafeFields = rows * columns - qtdBombs
+    var gameHidden = true
 
     lateinit var items: Array<Array<Field>>
 
@@ -141,6 +144,7 @@ class MainActivity : AppCompatActivity() {
         if(!field.clicked) {
             qtdSafeFields--
             field.clicked = true
+            field.visible = true
         }
 
         if(count == 0){
@@ -197,5 +201,50 @@ class MainActivity : AppCompatActivity() {
     private fun setVisibilityEndItems(visibility: Int){
         labelResult.visibility = visibility
         btnTryAgain.visibility = visibility
+    }
+
+    private fun hiddenOff(){
+        items.forEach {
+            it.forEach {
+                it.setLabelText(it.value.toString(), R.color.grayLight)
+            }
+        }
+    }
+
+    private fun hiddenOn(){
+        items.forEach {
+            it.forEach {
+                if(!it.visible) {
+                    it.setLabelText("", R.color.gray)
+                }
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_restart -> {
+                restartGame()
+                true
+            }
+            R.id.action_visibility -> {
+                if(gameHidden){
+                    item.setIcon(resources.getDrawable(R.drawable.ic_visibility_off))
+                    hiddenOff()
+                } else {
+                    item.setIcon(resources.getDrawable(R.drawable.ic_visibility))
+                    hiddenOn()
+                }
+                
+                gameHidden = !gameHidden
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }

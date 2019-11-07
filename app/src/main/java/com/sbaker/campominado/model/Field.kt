@@ -14,6 +14,7 @@ class Field(context: Context, displayMetrics: DisplayMetrics, columns: Int) {
     var value = 0
     var label = TextView(context)
     var clicked = false
+    var visible = false
 
     init {
         /**
