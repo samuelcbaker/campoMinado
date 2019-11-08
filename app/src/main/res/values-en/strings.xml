@@ -4,4 +4,7 @@
     <string name="win">You win</string>
     <string name="lose">You lose</string>
     <string name="try_again">Try again</string>
+    <string name="easy">Easy</string>
+    <string name="medium">Medium</string>
+    <string name="hard">Hard</string>
 </resources>

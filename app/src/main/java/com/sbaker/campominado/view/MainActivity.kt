@@ -7,6 +7,9 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.sbaker.campominado.R
+import com.sbaker.campominado.enums.ModeEnum.EASY
+import com.sbaker.campominado.enums.ModeEnum.MEDIUM
+import com.sbaker.campominado.enums.ModeEnum.HARD
 import com.sbaker.campominado.model.Field
 import com.sbaker.campominado.utils.Constants
 import kotlinx.android.synthetic.main.activity_main.*
@@ -19,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     var qtdBombs = 15
     var qtdSafeFields = rows * columns - qtdBombs
     var gameHidden = true
+    var mode = EASY
 
     lateinit var items: Array<Array<Field>>
 
@@ -30,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSetup(){
-        btnTryAgain.setOnClickListener {
+       btnTryAgain.setOnClickListener {
             restartGame()
         }
     }
@@ -58,6 +62,7 @@ class MainActivity : AppCompatActivity() {
                 board.addView(field.label)
                 field.setListener {
                     positionBombs(row, column)
+                    configSafeFields()
                     showValue(row, column)
                 }
             }
@@ -65,6 +70,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun restartGame(){
+        when(mode){
+            EASY -> {
+                rows = 13
+                columns = 10
+                qtdBombs = 15
+            }
+            MEDIUM -> {
+                rows = 10
+                columns = 7
+                qtdBombs = 18
+            }
+            HARD -> {
+                rows = 7
+                columns = 5
+                qtdBombs = 21
+            }
+        }
+
         qtdSafeFields = rows * columns - qtdBombs
         board.removeAllViews()
         hiddenOn()
@@ -85,8 +108,6 @@ class MainActivity : AppCompatActivity() {
                 bombs--
             }
         }
-
-        configSafeFields()
     }
 
     private fun configSafeFields(){
@@ -235,6 +256,21 @@ class MainActivity : AppCompatActivity() {
                 }
                 
                 gameHidden = !gameHidden
+                true
+            }
+            R.id.easy_mode -> {
+                mode = EASY
+                restartGame()
+                true
+            }
+            R.id.medium_mode -> {
+                mode = MEDIUM
+                restartGame()
+                true
+            }
+            R.id.hard_mode -> {
+                mode = HARD
+                restartGame()
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -3,4 +3,7 @@
     <string name="win">Venceu</string>
     <string name="lose">Perdeu</string>
     <string name="try_again">Jogar novamente</string>
+    <string name="easy">Fácil</string>
+    <string name="medium">Médio</string>
+    <string name="hard">Difícil</string>
 </resources>

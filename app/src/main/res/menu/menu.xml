@@ -12,4 +12,17 @@
         android:icon="@drawable/ic_replay"
         android:title="Restart"
         app:showAsAction="ifRoom|collapseActionView"/>
+
+    <item
+        android:id="@+id/easy_mode"
+        android:title="@string/easy"/>
+
+    <item
+        android:id="@+id/medium_mode"
+        android:title="@string/medium"/>
+
+    <item
+        android:id="@+id/hard_mode"
+        android:title="@string/hard"/>
+
 </menu>

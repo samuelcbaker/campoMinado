@@ -17,14 +17,10 @@ class Field(context: Context, displayMetrics: DisplayMetrics, columns: Int) {
     var visible = false
 
     init {
-        /**
-         * O tamanho total do board = tamanho da tela - (a soma das margins * a densidade) -> necessário multiplicar pela densidade pois o tamanho total da tela é em pixels
-         */
+        // O tamanho total do board = tamanho da tela - (a soma das margins * a densidade) -> necessário multiplicar pela densidade pois o tamanho total da tela é em pixels
         val boardWidth = displayMetrics.widthPixels - (Constants.MARGIN_GRID * displayMetrics.density)
 
-        /**
-         * Tamanho de cada campo = (tamanho da board / numero de colunas) - (o total de margin de cada item + margem de erro de 2dp)
-         */
+        // Tamanho de cada campo = (tamanho da board / numero de colunas) - (o total de margin de cada item + margem de erro de 2dp)
         val fieldSize = (Math.abs(boardWidth / columns) - (Constants.MARGIN_ITEM + 2)).toInt()
 
         val lytParams = LinearLayout.LayoutParams(fieldSize, fieldSize)
