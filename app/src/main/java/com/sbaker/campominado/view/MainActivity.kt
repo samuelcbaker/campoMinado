@@ -38,33 +38,25 @@ class MainActivity : AppCompatActivity() {
     private fun startGame() {
         setVisibilityEndItems(View.GONE)
 
-        /**
-         * Estrutura de dados que permite definir valores para os atributos do objeto repetir o nome da variável
-         */
+        // Estrutura de dados que permite definir valores para os atributos do objeto repetir o nome da variável
         board.apply {
             rowCount = rows
             columnCount = columns
         }
 
-        /**
-         * Com o DisplayMetrics, consigo pegar o tamanho total da tela do celular em pixels
-         */
+        // Com o DisplayMetrics, consigo pegar o tamanho total da tela do celular em pixels
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
 
-        /**
-         * Inicializando a matriz e colocando um Field padrão para cada elemento
-         */
+
+        // Inicializando a matriz e colocando um Field padrão para cada elemento
         items = Array(rows){ Array(columns, { Field(this, displayMetrics, columns) })}
 
-        for(row in 0..rows-1){
-            for (column in 0..columns-1){
-                board.addView(items[row][column].label)
-
-                /**
-                 * Listener nas labels para sortear as bombas
-                 */
-                items[row][column].label.setOnClickListener {
+        // Expressão Lambda -> ótima opção para melhora de performance
+        items.forEachIndexed{ row, array ->
+            array.forEachIndexed{ column, field ->
+                board.addView(field.label)
+                field.setListener {
                     positionBombs(row, column)
                     showValue(row, column)
                 }
@@ -75,6 +67,8 @@ class MainActivity : AppCompatActivity() {
     private fun restartGame(){
         qtdSafeFields = rows * columns - qtdBombs
         board.removeAllViews()
+        hiddenOn()
+        gameHidden = true
         startGame()
     }
 
@@ -85,29 +79,45 @@ class MainActivity : AppCompatActivity() {
             val row = (0..rows-1).random()
             val column = (0..columns-1).random()
 
-            /**
-             * Se o valor da celula já não for uma bomba e não for a celula clicada, adiciona a bomba
-             */
+            // Se o valor da celula já não for uma bomba e não for a celula clicada, adiciona a bomba
             if(items[row][column].value == Constants.BLANK_VALUE && (row != clickedRow && column != clickedColumn)){
                 items[row][column].value = Constants.BOMB_VALUE
-                items[row][column].setLabelText("*", R.color.gray)
                 bombs--
             }
         }
 
-        /**
-         * Para nao posicionar mais bombas.
-         */
-        for(row in 0..rows-1){
-            for (column in 0..columns-1){
-                /**
-                 * Listener nas labels para sortear as bombas
-                 */
-                items[row][column].label.setOnClickListener {
-                    showValue(row, column)
+        configSafeFields()
+    }
+
+    private fun configSafeFields(){
+        items.forEachIndexed{ row, array ->
+            array.forEachIndexed{ column, field ->
+                field.setListener { showValue(row, column) }
+                if(field.value != Constants.BOMB_VALUE) {
+                    evaluateField(row, column)
                 }
             }
         }
+    }
+
+    private fun evaluateField(clickedRow: Int, clickedColumn: Int){
+        var count = 0
+
+        for(row in clickedRow - 1 .. clickedRow + 1){
+            for (column in clickedColumn - 1 .. clickedColumn + 1){
+                /**
+                 * SE a linha e coluna estão dentro do tamanho do tabuleiro
+                 * E o item não foi o clicado inicialmente
+                 * E o item ser um bomba
+                 * ENTÃO incrementa o count
+                 */
+                if( (row >= 0 && column >= 0 && row < rows && column < columns) && (row != clickedRow || column != clickedColumn) && (items[row][column].value == Constants.BOMB_VALUE)) {
+                    count++
+                }
+            }
+        }
+
+        items[clickedRow][clickedColumn].value = count
     }
 
     private fun showValue(clickedRow: Int, clickedColumn: Int){
@@ -120,44 +130,23 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        var count = 0
-
-        /**
-         * Loop que passa por um quadrado 3x3, com o item clicado no meio
-         */
-        for(row in clickedRow - 1 .. clickedRow + 1){
-            for (column in clickedColumn - 1 .. clickedColumn + 1){
-                // se a linha e coluna estão dentro do tamanho do tabuleiro inteiro
-                if(row >= 0 && column >= 0 && row < rows && column < columns) {
-                    // se não for o item clicado e se for uma bomba
-                    if ( (row != clickedRow || column != clickedColumn) && items[row][column].value == Constants.BOMB_VALUE) {
-                        count++
-                    }
-                }
-            }
-        }
-
-        field.value = count
-        field.setLabelText(count.toString(), R.color.grayLight)
-
-        //Diminuir a quantidade de campos seguros somente quando aquele item não foi clicado
+        field.setLabelText(field.value.toString(), R.color.grayLight)
         if(!field.clicked) {
             qtdSafeFields--
             field.clicked = true
             field.visible = true
         }
 
-        if(count == 0){
+        if(field.value == Constants.BLANK_VALUE){
             for(row in clickedRow - 1 .. clickedRow + 1){
                 for (column in clickedColumn - 1 .. clickedColumn + 1){
-                    // se a linha e coluna estão dentro do tamanho do tabuleiro inteiro
-                    if(row >= 0 && column >= 0 && row < rows && column < columns) {
-                        // se não for o item clicado
-                        if (row != clickedRow || column != clickedColumn) {
-                            if(!items[row][column].clicked) {
-                                showValue(row, column)
-                            }
-                        }
+                    /**
+                     * SE a linha e coluna estão dentro do tamanho do tabuleiro
+                     * E o item não é o clicado inicialmente
+                     * E o item nunca foi clicado
+                     */
+                    if((row >= 0 && column >= 0 && row < rows && column < columns) && (row != clickedRow || column != clickedColumn) && (!items[row][column].clicked) ) {
+                        showValue(row, column)
                     }
                 }
             }
@@ -181,19 +170,19 @@ class MainActivity : AppCompatActivity() {
     private fun victory(){
         labelResult.text = resources.getString(R.string.win)
         setVisibilityEndItems(View.VISIBLE)
-        cleanListeners()
+        setListeners{}
     }
 
     private fun defeat(){
         labelResult.text = resources.getString(R.string.lose)
         setVisibilityEndItems(View.VISIBLE)
-        cleanListeners()
+        setListeners{}
     }
 
-    private fun cleanListeners(){
+    private fun setListeners(function: () -> Unit){
         items.forEach {
             it.forEach {
-                it.label.setOnClickListener{}
+                it.setListener { function() }
             }
         }
     }
@@ -204,18 +193,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hiddenOff(){
+        setListeners{}
+
         items.forEach {
             it.forEach {
-                it.setLabelText(it.value.toString(), R.color.grayLight)
+                val str = if(it.value == Constants.BOMB_VALUE) "*" else it.value.toString()
+                it.setLabelText(str, R.color.grayLight)
             }
         }
     }
 
     private fun hiddenOn(){
-        items.forEach {
-            it.forEach {
-                if(!it.visible) {
-                    it.setLabelText("", R.color.gray)
+        items.forEachIndexed { row, array ->
+            array.forEachIndexed{ column, field ->
+                field.setListener { showValue(row, column) }
+                if(!field.visible) {
+                    field.setLabelText("", R.color.gray)
                 }
             }
         }

@@ -7,6 +7,10 @@
     <color name="grayLight">#dfdfdf</color>
     <color name="black">#000</color>
     <color name="red">#BC1600</color>
+    <color name="darkPink">#B5009D</color>
     <color name="redLight">#FA8586</color>
     <color name="blue">#2400BB</color>
+    <color name="ocean">#009C99</color>
+    <color name="brown">#5C3514</color>
+    <color name="purple">#604475</color>
 </resources>

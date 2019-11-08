@@ -42,14 +42,25 @@ class Field(context: Context, displayMetrics: DisplayMetrics, columns: Int) {
 
     fun setLabelText(str: String, color: Int){
         label.apply {
-            text = if (value == Constants.BLANK_VALUE) "" else str
+            text = if (value != Constants.BLANK_VALUE) str else ""
             setBackgroundColor(resources.getColor(color))
             when(value){
                 1 -> setTextColor(resources.getColor(R.color.blue))
                 2 -> setTextColor(resources.getColor(R.color.colorPrimaryDark))
-                Constants.BOMB_VALUE -> setTextColor(resources.getColor(R.color.black))
-                else -> setTextColor(resources.getColor(R.color.red))
+                3 -> setTextColor(resources.getColor(R.color.red))
+                4 -> setTextColor(resources.getColor(android.R.color.holo_orange_dark))
+                5 -> setTextColor(resources.getColor(R.color.purple))
+                6 -> setTextColor(resources.getColor(R.color.darkPink))
+                7 -> setTextColor(resources.getColor(R.color.ocean))
+                8 -> setTextColor(resources.getColor(R.color.brown))
+                else -> setTextColor(resources.getColor(R.color.black))
             }
+        }
+    }
+
+    fun setListener(function: () -> Unit){
+        label.setOnClickListener {
+            function()
         }
     }
 }
