@@ -7,4 +7,5 @@
     <string name="easy">Easy</string>
     <string name="medium">Medium</string>
     <string name="hard">Hard</string>
+    <string name="visible_denied">No bombs have been placed yet, please click on any field to position.</string>
 </resources>

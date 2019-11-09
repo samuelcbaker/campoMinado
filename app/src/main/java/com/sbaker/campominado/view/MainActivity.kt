@@ -5,6 +5,7 @@ import android.util.DisplayMetrics
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.sbaker.campominado.R
 import com.sbaker.campominado.enums.ModeEnum.EASY
@@ -23,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     var qtdSafeFields = rows * columns - qtdBombs
     var gameHidden = true
     var mode = EASY
+    var bombsPositioned = false
 
     lateinit var items: Array<Array<Field>>
 
@@ -56,7 +58,7 @@ class MainActivity : AppCompatActivity() {
          */
         val boardWidth = displayMetrics.widthPixels - (Constants.MARGIN_GRID * displayMetrics.density)
 
-        // Inicializando a matriz e colocando um Field padrão para cada elemento
+        // Inicializando a matriz e colocando um campo padrão para cada elemento
         items = Array(rows){ Array(columns, { Field(this, columns, boardWidth) })}
 
         // Expressão Lambda -> ótima opção para melhora de performance
@@ -96,6 +98,7 @@ class MainActivity : AppCompatActivity() {
         qtdSafeFields = rows * columns - qtdBombs
         board.removeAllViews()
         hiddenOn()
+        bombsPositioned = false
         startGame()
     }
 
@@ -107,12 +110,14 @@ class MainActivity : AppCompatActivity() {
             val randomColumn = (0..columns-1).random()
             val field = items[randomRow][randomColumn]
 
-            // SE o valor da celula não for uma bomba E não for a celula clicada ENTÃO adiciona a bomba
+            // SE o valor do campo não for uma bomba E não for o campo clicado ENTÃO adiciona a bomba
             if(!field.isBomb() && (randomRow != clickedRow || randomColumn != clickedColumn)){
                 field.value = Constants.BOMB_VALUE
                 bombs--
             }
         }
+
+        bombsPositioned = true
     }
 
     private fun configSafeFields(){
@@ -157,7 +162,7 @@ class MainActivity : AppCompatActivity() {
             showAllBombs()
             // A bomba clicada terá uma cor vermelha
             field.setLabelText("*", R.color.redLight)
-            defeat()
+            endGame(false)
             return
         }
 
@@ -182,7 +187,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if(qtdSafeFields == 0){
-            victory()
+            endGame(true)
         }
     }
 
@@ -190,22 +195,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAllBombs() {
         items.forEach {
-            it.forEach {
-                if(it.isBomb()){
-                    it.setLabelText("*", R.color.grayLight)
-                }
+            // Filter para alterar somente os campos que são bombas
+            it.filter { it.isBomb() }.forEach {
+                it.setLabelText("*", R.color.grayLight)
+                it.visible = true
             }
         }
     }
 
-    private fun victory(){
-        labelResult.text = resources.getString(R.string.win)
-        setVisibilityItemsEndGame(View.VISIBLE)
-        cleanListeners()
-    }
-
-    private fun defeat(){
-        labelResult.text = resources.getString(R.string.lose)
+    private fun endGame(win: Boolean){
+        labelResult.text = if (win) resources.getString(R.string.win) else resources.getString(R.string.lose)
         setVisibilityItemsEndGame(View.VISIBLE)
         cleanListeners()
     }
@@ -261,12 +260,16 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_visibility -> {
-                if(gameHidden){
-                    item.icon = resources.getDrawable(R.drawable.ic_visibility_off)
-                    hiddenOff()
+                if(bombsPositioned) {
+                    if (gameHidden) {
+                        item.icon = resources.getDrawable(R.drawable.ic_visibility_off)
+                        hiddenOff()
+                    } else {
+                        item.icon = resources.getDrawable(R.drawable.ic_visibility)
+                        hiddenOn()
+                    }
                 } else {
-                    item.icon = resources.getDrawable(R.drawable.ic_visibility)
-                    hiddenOn()
+                    Toast.makeText(this, resources.getString(R.string.visible_denied), Toast.LENGTH_LONG).show()
                 }
                 true
             }

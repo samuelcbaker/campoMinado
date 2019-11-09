@@ -6,4 +6,5 @@
     <string name="easy">Fácil</string>
     <string name="medium">Médio</string>
     <string name="hard">Difícil</string>
+    <string name="visible_denied">Nenhuma bomba foi posicionada ainda, por favor clique em algum campo para posicionar.</string>
 </resources>
